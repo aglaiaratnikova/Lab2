@@ -1,0 +1,190 @@
+import java.util.Scanner;
+import java.io.PrintStream;
+public class fib {
+    public static Scanner in = new Scanner(System.in);
+    public static PrintStream out = System.out;
+
+    public static void main(String[] args) {
+
+        // считываем n
+        int n = in.nextInt();
+
+        // создаем массив
+        int[] a = new int[n];
+
+        // определим максимальное значение
+        int maxArr = 0;
+        for (int i = 0; i < n; i++) {
+            a[i] = in.nextInt();
+            if (a[i] > maxArr) {
+                maxArr = a[i];
+            }
+        }
+
+        // создаем массив из чисел фибоначчи до m
+        int[] f = fibGen(maxArr);
+
+        // запомним, какие из a являются фибоначчи
+        boolean[] boolFib = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            boolFib[i] = fibCheck(a[i], f);
+        }
+
+        // считаем сколько чисел фибоначчи
+        int fibCount = 0;
+        for (boolean y : boolFib) {
+            if (y) fibCount++;
+        }
+
+        // создаем два массива: для фибоначчи и для остальных
+        int[] aFib = new int[fibCount];
+        int[] aOth = new int[n - fibCount];
+
+        int aFibIndex = 0;  // индекс для фибоначчи
+        int aOthIndex = 0;  // индекс для остальных
+        for (int i = 0; i < n; i++) {
+            if (boolFib[i]) {
+                aFib[aFibIndex++] = a[i];
+            } else {
+                aOth[aOthIndex++] = a[i];
+            }
+        }
+
+        // сортируем числа фибоначчи по возрастанию, а остальные по убыванию
+        bublMax(aFib);
+        bublMin(aOth);
+
+        // собираем в изначальный массив
+        int p = 0;
+        for (int i : aFib) {
+            a[p++] = i;
+        }
+        for (int i : aOth) {
+            a[p++] = i;
+        }
+
+        // выводим результат
+        for (int x : a) {
+            out.print(x + " ");
+        }
+        out.println();
+        out.println(fibCount);
+        // выводим, заменяя фибоначчи на индекс, остальное на -1
+        for (int i : a) {
+            int idx = getIndex(i, f);
+            if (idx != -1) {
+                out.print(idx + " ");
+            } else {
+                out.print(-1 + " ");
+            }
+        }
+        out.println();
+        // заменяем каждое число на сумму чётных цифр
+        for (int i = 0; i < n; i++) {
+            a[i] = evenCount(a[i]);
+        }
+
+        // выводим результат
+        for (int x : a) {
+            out.print(x + " ");
+        }
+    }
+
+    // генерим фибоначчи до max
+    private static int[] fibGen(int x) {
+        // если максимум меньше 1, вернем массив с одним значением
+        if (x < 1) {
+            return new int[]{0};
+        }
+
+        // начальные члены
+        int f1 = 0, f2 = 1;
+
+        // временный массив
+        int[] tmp = new int[x + 2];
+        int c = 0;
+        tmp[c++] = f1;
+        tmp[c++] = f2;
+
+        // генерим пока не превысим x
+        while (true) {
+            int f3 = f1 + f2;
+            if (f3 > x) break;
+            tmp[c++] = f3;
+            f1 = f2;
+            f2 = f3;
+        }
+
+        // формируем итог
+        int[] r = new int[c];
+        for (int i = 0; i < c; i++) {
+            r[i] = tmp[i];
+        }
+        return r;
+    }
+
+    // проверяем, является ли число фибоначчи
+    private static boolean fibCheck(int x, int[] f) {
+        for (int y : f) {
+            if (y == x) {
+                return true;
+            }
+            if (y > x) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // пузырьковая сортировка по возрастанию
+    private static void bublMax(int[] q) {
+        for (int i = 0; i < q.length - 1; i++) {
+            for (int j = 0; j < q.length - 1 - i; j++) {
+                if (q[j] > q[j + 1]) {
+                    int tmp = q[j];
+                    q[j] = q[j + 1];
+                    q[j + 1] = tmp;
+                }
+            }
+        }
+    }
+
+    // пузырьковая сортировка по убыванию
+    private static void bublMin(int[] q) {
+        for (int i = 0; i < q.length - 1; i++) {
+            for (int j = 0; j < q.length - 1 - i; j++) {
+                if (q[j] < q[j + 1]) {
+                    int tmp = q[j];
+                    q[j] = q[j + 1];
+                    q[j + 1] = tmp;
+                }
+            }
+        }
+    }
+    // получаем индекс числа в ряду фибоначчи
+    private static int getIndex(int x, int[] f) {
+        for (int i = 0; i < f.length; i++) {
+            if (f[i] == x) {
+                return i;
+            }
+            if (f[i] > x) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+    //считаем сумму четных цифр
+    private static int evenCount(int x) {
+        x = Math.abs(x);
+        int sum = 0;
+        // пока число не закончилось
+        while (x > 0) {
+            int d = x % 10;
+            if (d % 2 == 0) {
+                sum += d;
+            }
+            x /= 10;
+        }
+        return sum;
+    }
+}
